@@ -37,6 +37,13 @@ namespace FİLESAPI.UI.Controllers
 
             return View();
         }
+        [Route("Categories")]
+        public IActionResult Categories()
+        {
+            string ApiBaseUrl = _configuration["ApiBaseUrl"];
+            ViewBag.ApiBaseUrl= ApiBaseUrl;
+            return View();
+        }
 
         [Route("Login")]
         public IActionResult Login()
