@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FİLESAPI.Dtos;
 using FİLESAPI.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -19,16 +20,18 @@ namespace FİLESAPI.Controllers
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
         ResultDto result = new ResultDto();
- 
-        public UserController(UserManager<AppUser> userManager, IMapper mapper, RoleManager<AppRole> roleManager, IConfiguration configuration, SignInManager<AppUser> signInManager)
+
+        public UserController(UserManager<AppUser> userManager, IMapper mapper, RoleManager<AppRole> roleManager, IConfiguration configuration, SignInManager<AppUser> signInManager, IWebHostEnvironment webHostEnvironment)
         {
             _userManager = userManager;
             _mapper = mapper;
             _roleManager = roleManager;
             _configuration = configuration;
             _signInManager = signInManager;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         [HttpGet]
@@ -77,7 +80,6 @@ namespace FİLESAPI.Controllers
         }
 
         [HttpPost]
-
         public async Task<ResultDto> SignIn(LoginDto dto)
         {
             var user = await _userManager.FindByNameAsync(dto.UserName); 

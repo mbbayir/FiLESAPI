@@ -13,45 +13,49 @@ namespace FİLESAPI.UI.Controllers
             _logger = logger;
             _configuration = configuration;
         }
-
-
         public IActionResult Index()
         {
             return View();
         }
 
+        //[Route("Folders")]
+        //public IActionResult Folders()
+        //{
+        //    string ApiBaseUrl = _configuration["ApiBaseUrl"]!;
+        //    ViewBag.ApiBaseUrl = ApiBaseUrl;
+        //    return View();
+        //}
 
-        [Route("Folders")]
-        public IActionResult Folders()
-        {
-            string ApiBaseUrl = _configuration["ApiBaseUrl"]!;
-            ViewBag.ApiBaseUrl = ApiBaseUrl;
-            return View();
-        }
+        //[Route("Files/{id}")]
+        //public IActionResult Files( int id)
+        //{
+        //    string ApiBaseUrl = _configuration["ApiBaseUrl"]!;
+        //    ViewBag.ApiBaseUrl = ApiBaseUrl;
 
-        [Route("Files/{id}")]
-        public IActionResult Files( int id)
-        {
-            string ApiBaseUrl = _configuration["ApiBaseUrl"]!;
-            ViewBag.ApiBaseUrl = ApiBaseUrl;
+        //    return View();
+        //}
+        //[Route("Categories")]
+        //public IActionResult Categories()
+        //{
+        //    string ApiBaseUrl = _configuration["ApiBaseUrl"];
+        //    ViewBag.ApiBaseUrl= ApiBaseUrl;
+        //    return View();
+        //}
 
-            return View();
-        }
-        [Route("Categories")]
-        public IActionResult Categories()
-        {
-            string ApiBaseUrl = _configuration["ApiBaseUrl"];
-            ViewBag.ApiBaseUrl= ApiBaseUrl;
-            return View();
-        }
-
-        [Route("Login")]
-        public IActionResult Login()
-        {
-            string ApiBaseUrl = _configuration["ApiBaseUrl"];
-            ViewBag.ApiBaseUrl = ApiBaseUrl;
-            return View();
-        }
+        //[Route("Login")]
+        //public IActionResult Login()
+        //{
+        //    string ApiBaseUrl = _configuration["ApiBaseUrl"];
+        //    ViewBag.ApiBaseUrl = ApiBaseUrl;
+        //    return View();
+        //}
+         
+        //public IActionResult SignIn()
+        //{
+        //    string ApiBaseUrl = _configuration["ApiBaseUrl"];
+        //    ViewBag.ApiBaseUrl = ApiBaseUrl;
+        //    return View();
+        //}
         public IActionResult Privacy()
         {
             return View();

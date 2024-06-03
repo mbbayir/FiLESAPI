@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FİLESAPI", "FİLESAPI\FİLESAPI.csproj", "{8D974D4D-02C8-443F-8303-00726CDCD805}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FİLESAPI", "FİLESAPI\FİLESAPI.csproj", "{8D974D4D-02C8-443F-8303-00726CDCD805}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FİLESAPI.UI", "FİLESAPI.UI\FİLESAPI.UI.csproj", "{2CFF29D7-3562-44A5-8181-C182BB169556}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FİLESAPI.UI", "FİLESAPI.UI\FİLESAPI.UI.csproj", "{2CFF29D7-3562-44A5-8181-C182BB169556}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
