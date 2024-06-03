@@ -1,0 +1,102 @@
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+
+[Route(api[controller])]
+[ApiController]
+public class CategoriesController  ControllerBase
+{
+     Bu örnekte veri kaynağı olarak statik bir liste kullanıyoruz
+    private static ListCategory categories = new ListCategory
+    {
+        new Category { Id = 1, Name = Technology, Description = All about technology },
+        new Category { Id = 2, Name = Science, Description = All about science }
+    };
+
+     GET apicategories
+    [HttpGet]
+    public ActionResultIEnumerableCategoryDTO GetCategories()
+    {
+        var categoryDTOs = new ListCategoryDTO();
+
+        foreach (var category in categories)
+        {
+            categoryDTOs.Add(new CategoryDTO
+            {
+                Id = category.Id,
+                Name = category.Name,
+                Description = category.Description
+            });
+        }
+
+        return Ok(categoryDTOs);
+    }
+
+     GET apicategories1
+    [HttpGet({id})]
+    public ActionResultCategoryDTO GetCategory(int id)
+    {
+        var category = categories.Find(c = c.Id == id);
+        if (category == null)
+        {
+            return NotFound();
+        }
+
+        var categoryDTO = new CategoryDTO
+        {
+            Id = category.Id,
+            Name = category.Name,
+            Description = category.Description
+        };
+
+        return Ok(categoryDTO);
+    }
+
+     POST apicategories
+    [HttpPost]
+    public ActionResultCategoryDTO CreateCategory(CategoryDTO categoryDTO)
+    {
+        var category = new Category
+        {
+            Id = categories.Count + 1,
+            Name = categoryDTO.Name,
+            Description = categoryDTO.Description
+        };
+
+        categories.Add(category);
+
+        categoryDTO.Id = category.Id;
+
+        return CreatedAtAction(nameof(GetCategory), new { id = categoryDTO.Id }, categoryDTO);
+    }
+
+     PUT apicategories1
+    [HttpPut({id})]
+    public IActionResult UpdateCategory(int id, CategoryDTO categoryDTO)
+    {
+        var category = categories.Find(c = c.Id == id);
+        if (category == null)
+        {
+            return NotFound();
+        }
+
+        category.Name = categoryDTO.Name;
+        category.Description = categoryDTO.Description;
+
+        return NoContent();
+    }
+
+     DELETE apicategories1
+    [HttpDelete({id})]
+    public IActionResult DeleteCategory(int id)
+    {
+        var category = categories.Find(c = c.Id == id);
+        if (category == null)
+        {
+            return NotFound();
+        }
+
+        categories.Remove(category);
+
+        return NoContent();
+    }
+}

@@ -49,61 +49,63 @@ namespace FİLESAPI.Controllers
         
         }
         [HttpPost]
-        public ResultDto CreateFolder(FolderDto dto)
+        public async Task<string> CreateFolder(IFormFile FolderName)
         {
-            var result = new ResultDto();
-
-            if (_context.Folders.Any(f => f.FolderName == dto.FolderName))
+            if (FolderName != null && FolderName.Length > 0)
             {
-                result.Status = false;
-                result.Message = "Girilen dosya adı kayıtlıdır";
-                return result;
+                var guid = Guid.NewGuid();
+
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/upload", guid + FolderName.FileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await FolderName.CopyToAsync(stream);
+                }
+
+                var filebudur = guid + FolderName.FileName;
+                var folder = new Folder { FolderName = filebudur, Created = DateTime.Now, Updated = DateTime.Now }; // Veritabanına eklenecek dosya adıyla yeni bir FolderDto oluşturuluyor
+                _context.Folders.Add(folder);
+                await _context.SaveChangesAsync(); // Değişikliklerin veritabanına kaydedilmesi
+
+                result.Status = true;
+                result.Message = "Dosya başarıyla eklendi";
+                return result.Message;
             }
 
-            var folder = new Folder
-            {
-                FolderName = dto.FolderName,
-                Updated = DateTime.Now,
-                Created = DateTime.Now
-            };
+            return "hata";
 
-            _context.Folders.Add(folder);
-            _context.SaveChanges();
 
-            result.Status = true;
-            result.Message = "Klasör eklendi";
-            return result;
+           
         }
-
+       
         [HttpPut]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
+        //public ResultDto UpdateFolder(FolderDto dto)
+        //{
+        //    var result = new ResultDto();
 
-        public ResultDto UpdateFolder(FolderDto dto)
-        {
-            var result = new ResultDto();
+        //    var folder = _context.Folders.SingleOrDefault(f => f.Id == dto.Id);
 
-            var folder = _context.Folders.SingleOrDefault(f => f.Id == dto.Id);
+        //    if (folder == null)
+        //    {
+        //        result.Status = false;
+        //        result.Message = "Klasör Bulunamadı!";
+        //        return result;
+        //    }
+        //    //folder.FolderName = dto.FolderName;
+        //    folder.Updated = DateTime.Now;
 
-            if (folder == null)
-            {
-                result.Status = false;
-                result.Message = "Klasör Bulunamadı!";
-                return result;
-            }
-            folder.FolderName = dto.FolderName;
-            folder.Updated = DateTime.Now;
+        //    _context.Folders.Update(folder);
+        //    _context.SaveChanges();
 
-            _context.Folders.Update(folder);
-            _context.SaveChanges();
+        //    result.Status = true;
+        //    result.Message = "Klasör düzenlendi";
+        //    return result;
+        //}
 
-            result.Status = true;
-            result.Message = "Klasör düzenlendi";
-            return result;
-        }
-
-        [HttpDelete]
+        [HttpDelete("{id}")]
         
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public ResultDto DeleteFolder(int id)
         {
             var result = new ResultDto();

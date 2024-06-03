@@ -7,7 +7,6 @@
         public string FileName { get; set; }
         public string FilePath { get; set; }
         public int FileSize { get; set; }
-
         public DateTime Updated { get; set; }
 
         public DateTime Created { get; set; }

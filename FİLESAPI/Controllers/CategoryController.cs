@@ -48,6 +48,8 @@ namespace FİLESAPI.Controllers
         [HttpPost]
         public ResultDto Post(CategoryDto dto)
         {
+            var result = new ResultDto();
+
             if (_context.Categories.Count(c => c.Name == dto.Name) > 0)
             {
                 result.Status = false;
@@ -68,6 +70,8 @@ namespace FİLESAPI.Controllers
         [HttpPut]
         public ResultDto Put(CategoryDto dto)
         {
+            var result = new ResultDto();
+
             var category = _context.Categories.Where(s => s.Name == dto.Name).SingleOrDefault();
             if (category == null)
             {
@@ -89,6 +93,8 @@ namespace FİLESAPI.Controllers
         [HttpDelete("{id}")]
         public ResultDto Delete(int id)
         {
+            var result = new ResultDto();
+
             var category = _context.Categories.SingleOrDefault(s => s.Id == id);
             if (category == null)
             {
