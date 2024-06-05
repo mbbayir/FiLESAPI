@@ -14,32 +14,28 @@ namespace FİLESAPI.Controllers
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
 
-        ResultDto result = new ResultDto();
-
         public EFolderController(AppDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
 
-        [HttpGet("GetFolderContents/{id}")]
-        public IActionResult GetFolderContents(int id)
+        [HttpGet("GetFolderContents")]
+        public IActionResult GetFolderContents()
         {
-            var folder = _context.Folders.Include(f => f.Files).FirstOrDefault(f => f.Id == id);
-            if (folder == null)
-            {
-                return NotFound(new ResultDto { Status = false, Message = "Folder not found" });
-            }
+            
+            var folder = _context.Folders
+                .Include(f => f.Files) // Files ilişkisel verilerini yükle
+                .Include(f => f.SubFolders) // SubFolders ilişkisel verilerini yükle
+                .ToList();
 
-            var folderContents = new FolderContentsDto
-            {
-                FolderName = folder.FolderName,
-                Files = _mapper.Map<List<FilliesDto>>(folder.Files),
-                SubFolders = _mapper.Map<List<FolderDto>>(_context.Folders.Where(f => f.ParentFolderId == id).ToList())
-            };
-
-            return Ok(folderContents);
+            
+          
+            return Ok(folder);
         }
+
+
+
         [HttpPost("UploadFile")]
         public async Task<IActionResult> UploadFile([FromForm] IFormFile file)
         {
@@ -60,11 +56,8 @@ namespace FİLESAPI.Controllers
                 await file.CopyToAsync(stream);
             }
 
-
             return Ok(new ResultDto { Status = true, Message = "File uploaded successfully." });
         }
-
-
 
         [HttpGet("Download/{id}")]
         public IActionResult Download(int id)
@@ -92,7 +85,6 @@ namespace FİLESAPI.Controllers
             return File(memory, "application/octet-stream", Path.GetFileName(filePath));
         }
 
-
         [HttpPut("Rename/{id}")]
         public async Task<IActionResult> Rename(int id, [FromBody] RenameDto renameDto)
         {
@@ -108,7 +100,6 @@ namespace FİLESAPI.Controllers
 
             return Ok(new ResultDto { Status = true, Message = "Folder renamed successfully" });
         }
-
 
         [HttpPut("Move/{id}")]
         public async Task<IActionResult> Move(int id, [FromBody] MoveDto moveDto)
@@ -126,6 +117,41 @@ namespace FİLESAPI.Controllers
             return Ok(new ResultDto { Status = true, Message = "Folder moved successfully" });
         }
 
+        [HttpGet("Search")]
+        public IActionResult Search([FromQuery] SearchDto searchDto)
+        {
+            if (string.IsNullOrWhiteSpace(searchDto.Query))
+            {
+                return BadRequest(new ResultDto { Status = false, Message = "Search query cannot be empty" });
+            }
+
+            var matchingFolders = new List<Folder>();
+            var matchingFiles = new List<Fillies>();
+
+            if (searchDto.IncludeFolders)
+            {
+                matchingFolders = _context.Folders
+                    .Include(f => f.Files)
+                    .Include(f => f.SubFolders)
+                    .Where(f => EF.Functions.Like(f.FolderName, $"%{searchDto.Query}%"))
+                    .ToList();
+            }
+
+            if (searchDto.IncludeFiles)
+            {
+                matchingFiles = _context.Files
+                    .Where(f => EF.Functions.Like(f.FileName, $"%{searchDto.Query}%"))
+                    .ToList();
+            }
+
+            var searchResults = new
+            {
+                Folders = matchingFolders,
+                Files = matchingFiles
+            };
+            return Ok(searchResults);
+        }
+
+
     }
 }
-

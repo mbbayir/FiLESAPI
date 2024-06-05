@@ -3,6 +3,11 @@
     Layout = "~/Views/Shared/_Admin.cshtml";
 }
 
+<div class="form-group">
+    <input type="text" id="searchQuery" class="form-control" placeholder="Search files and folders..." />
+    <button id="searchButton" class="btn btn-primary mt-2">Search</button>
+</div>
+
 <table class="table">
     <thead>
         <tr>
@@ -27,26 +32,47 @@
 
 <script>
     $(document).ready(function () {
-        var selectedFolderId = null;
         var baseurl = "http://localhost:5287/";
         var gettoken = localStorage.getItem("token");
 
         $("#uploadButton").click(function () {
             uploadFile();
         });
+        $("#searchButton").click(function () {
+            searchFilesAndFolders();
+        });
 
-        function getFolderContents(folderId) {
+        function getFolderContents() {
             $.ajax({
                 type: "GET",
-                url: baseurl + "api/EFolder/GetFolderContents/" + folderId,
-                contentType: "application/json",
+                url: baseurl + "api/EFolder/GetFolderContents",
+                headers: {
+                    "Authorization": "Bearer " + gettoken
+                },
                 success: function (response) {
+                    console.log("API Response:", response);
                     displayFolderContents(response);
                 },
                 error: function (xhr, status, error) {
                     console.error("Error: " + status + " " + error);
                 }
             });
+        }
+
+        function displayFolderContents(folderContents) {
+            var html = "";
+            if (Array.isArray(folderContents)) {
+                folderContents.forEach(function (folder) {
+                    html += "<tr>";
+                    html += "<td>" + folder.folderName + "</td>";
+                    html += "<td>";
+                    html += "<button class='btn btn-primary' onclick='downloadFile(" + folder.id + ")'>Download</button> ";
+                    html += "<button class='btn btn-info' onclick='moveToFolder(" + folder.id + ")'>Move</button>";
+                    html += "</td>";
+                    html += "</tr>";
+                });
+            }
+            $("#folderContentsBody").html(html);
         }
 
         function uploadFile() {
@@ -58,12 +84,15 @@
             $.ajax({
                 type: 'POST',
                 url: baseurl + 'api/EFolder/UploadFile',
+                headers: {
+                    "Authorization": "Bearer " + gettoken
+                },
                 data: formData,
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    console.log(response);
-                    getFolderContents(selectedFolderId);
+                    console.log("Upload Response:", response);
+                    getFolderContents(); 
                 },
                 error: function (xhr, status, error) {
                     console.error('Error: ' + status + ' ' + error);
@@ -75,6 +104,9 @@
             $.ajax({
                 type: "GET",
                 url: baseurl + "api/EFolder/Download/" + fileId,
+                headers: {
+                    "Authorization": "Bearer " + gettoken
+                },
                 xhrFields: {
                     responseType: 'blob'
                 },
@@ -105,38 +137,45 @@
             });
         }
 
-
-        function displayFolderContents(folderContents) {
-            var html = "";
-            folderContents.Files.forEach(function (file) {
-                html += "<tr>";
-                html += "<td>" + file.FileName + "</td>";
-                html += "<td><button class='btn btn-primary' onclick='downloadFile(" + file.Id + ")'>Download</button></td>";
-                html += "</tr>";
-            });
-            folderContents.SubFolders.forEach(function (folder) {
-                html += "<tr>";
-                html += "<td>" + folder.FolderName + "</td>";
-                html += "<td><button class='btn btn-info' onclick='moveToFolder(" + folder.Id + ")'>Move</button></td>";
-                html += "</tr>";
-            });
-            $("#folderContentsBody").html(html);
-        }
-
-
-
         function moveToFolder(folderId) {
-            var newParentFolderId = 2;
+            var newParentFolderId = 2; 
             var moveDto = {
                 NewParentFolderId: newParentFolderId
             };
+
+            var apiUrl = baseurl + "api/EFolder/Move/" + folderId; 
+
             $.ajax({
                 type: "PUT",
-                url: baseurl + "api/EFolder/Move/" + folderId,
+                url: apiUrl,
+                headers: {
+                    "Authorization": "Bearer " + gettoken
+                },
                 contentType: "application/json",
                 data: JSON.stringify(moveDto),
                 success: function (response) {
-                    console.log(response);
+                    console.log("Move Response:", response);
+                    getFolderContents();
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error: " + status + " " + error);
+                }
+            });
+        }
+        function searchFilesAndFolders() {
+            var searchDto = {
+                query: $("#searchQuery").val(),
+                includeFolders: true, 
+                includeFiles: true    
+            };
+
+            $.ajax({
+                type: "GET",
+                url: baseurl + "api/EFolder/Search",
+                data: searchDto,
+                success: function (response) {
+                    console.log("Search Response: ", response);
+                    displayFolderContents(response);
                 },
                 error: function (xhr, status, error) {
                     console.error("Error: " + status + " " + error);
@@ -145,5 +184,9 @@
         }
 
 
+        getFolderContents();
+
+        window.downloadFile = downloadFile;
+        window.moveToFolder = moveToFolder;
     });
 </script>

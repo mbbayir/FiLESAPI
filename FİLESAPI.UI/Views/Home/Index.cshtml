@@ -2,6 +2,68 @@
     ViewData["Title"] = "Home Page";
 }
 
-<h1 class="h3 mb-4 text-gray-800">Dosya Yönetim Portalı</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5+z8vwKcS+8P3goGXhXQ5t2vEb2APl/dW1Gw2R3f" crossorigin="anonymous">
+</head>
+<body>
 
+    <div class="container">
+        <h1 class="text-center mb-4">Folders</h1>
+        <div id="divResult"></div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Folder Name</th>
+                    </tr>
+                </thead>
+                <tbody id="folderList">
+                    <!-- Folder isimlerini buraya dinamik olarak ekleyeceğiz -->
+                </tbody>
+            </table>
+        </div>
+    </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            listele();
+        });
+
+        var baseurl = "http://localhost:5287/";
+        var gettoken = localStorage.getItem("token");
+
+        function listele() {
+            $.ajax({
+                type: "GET",
+                url: baseurl + "api/Folders",
+                contentType: "application/json",
+                headers: {
+                    "Authorization": "Bearer " + gettoken
+                },
+                success: function (response) {
+                    console.log(response);
+                    var html = "";
+                    $.each(response, function (index, item) {
+                        html += `<tr>`;
+                        html += `<td>${item.id}</td>`;
+                        html += `<td>${item.folderName}</td>`;
+                        html += `</tr>`;
+                    });
+                    $("#folderList").html(html);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error: " + status + " " + error);
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

@@ -17,7 +17,7 @@ namespace FİLESAPI.Mapping
             CreateMap<Folder, Folderfilles>()
                 .ForMember(opt=>opt.Fillies, opt=>opt.MapFrom(path=>path.Files))
                 .ReverseMap();
-
+            
 
 
         }
