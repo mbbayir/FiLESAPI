@@ -1,0 +1,149 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Admin.cshtml";
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <td>
+                <input type="file" id="fileInput" name="file" required />
+            </td>
+            <td>
+                <button id="uploadButton" class="btn btn-success">Upload</button>
+            </td>
+        </tr>
+        <tr>
+            <th>File/Folder Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="folderContentsBody">
+        <!-- İçerik buraya AJAX ile doldurulacak -->
+    </tbody>
+</table>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        var selectedFolderId = null;
+        var baseurl = "http://localhost:5287/";
+        var gettoken = localStorage.getItem("token");
+
+        $("#uploadButton").click(function () {
+            uploadFile();
+        });
+
+        function getFolderContents(folderId) {
+            $.ajax({
+                type: "GET",
+                url: baseurl + "api/EFolder/GetFolderContents/" + folderId,
+                contentType: "application/json",
+                success: function (response) {
+                    displayFolderContents(response);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error: " + status + " " + error);
+                }
+            });
+        }
+
+        function uploadFile() {
+            var fileInput = document.getElementById('fileInput');
+            var file = fileInput.files[0];
+            var formData = new FormData();
+            formData.append('file', file);
+
+            $.ajax({
+                type: 'POST',
+                url: baseurl + 'api/EFolder/UploadFile',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+                    getFolderContents(selectedFolderId);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error: ' + status + ' ' + error);
+                }
+            });
+        }
+
+        function downloadFile(fileId) {
+            $.ajax({
+                type: "GET",
+                url: baseurl + "api/EFolder/Download/" + fileId,
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function (response, status, xhr) {
+                    var filename = "";
+                    var disposition = xhr.getResponseHeader('Content-Disposition');
+                    if (disposition && disposition.indexOf('attachment') !== -1) {
+                        var matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+                        if (matches != null && matches[1]) {
+                            filename = matches[1].replace(/['"]/g, '');
+                        }
+                    }
+                    var blob = new Blob([response], { type: 'application/octet-stream' });
+                    if (window.navigator.msSaveOrOpenBlob) {
+                        window.navigator.msSaveBlob(blob, filename);
+                    } else {
+                        var link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error: " + status + " " + error);
+                }
+            });
+        }
+
+
+        function displayFolderContents(folderContents) {
+            var html = "";
+            folderContents.Files.forEach(function (file) {
+                html += "<tr>";
+                html += "<td>" + file.FileName + "</td>";
+                html += "<td><button class='btn btn-primary' onclick='downloadFile(" + file.Id + ")'>Download</button></td>";
+                html += "</tr>";
+            });
+            folderContents.SubFolders.forEach(function (folder) {
+                html += "<tr>";
+                html += "<td>" + folder.FolderName + "</td>";
+                html += "<td><button class='btn btn-info' onclick='moveToFolder(" + folder.Id + ")'>Move</button></td>";
+                html += "</tr>";
+            });
+            $("#folderContentsBody").html(html);
+        }
+
+
+
+        function moveToFolder(folderId) {
+            var newParentFolderId = 2;
+            var moveDto = {
+                NewParentFolderId: newParentFolderId
+            };
+            $.ajax({
+                type: "PUT",
+                url: baseurl + "api/EFolder/Move/" + folderId,
+                contentType: "application/json",
+                data: JSON.stringify(moveDto),
+                success: function (response) {
+                    console.log(response);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error: " + status + " " + error);
+                }
+            });
+        }
+
+
+    });
+</script>

@@ -74,34 +74,32 @@ namespace FİLESAPI.Controllers
 
             return "hata";
 
-
-           
         }
        
         [HttpPut]
         //[Authorize(Roles = "Admin")]
-        //public ResultDto UpdateFolder(FolderDto dto)
-        //{
-        //    var result = new ResultDto();
+        public ResultDto UpdateFolder(FolderDto dto)
+        {
+            var result = new ResultDto();
 
-        //    var folder = _context.Folders.SingleOrDefault(f => f.Id == dto.Id);
+            var folder = _context.Folders.SingleOrDefault(f => f.Id == dto.Id);
 
-        //    if (folder == null)
-        //    {
-        //        result.Status = false;
-        //        result.Message = "Klasör Bulunamadı!";
-        //        return result;
-        //    }
-        //    //folder.FolderName = dto.FolderName;
-        //    folder.Updated = DateTime.Now;
+            if (folder == null)
+            {
+                result.Status = false;
+                result.Message = "Klasör Bulunamadı!";
+                return result;
+            }
+            //folder.FolderName = dto.FolderName;
+            folder.Updated = DateTime.Now;
 
-        //    _context.Folders.Update(folder);
-        //    _context.SaveChanges();
+            _context.Folders.Update(folder);
+            _context.SaveChanges();
 
-        //    result.Status = true;
-        //    result.Message = "Klasör düzenlendi";
-        //    return result;
-        //}
+            result.Status = true;
+            result.Message = "Klasör düzenlendi";
+            return result;
+        }
 
         [HttpDelete("{id}")]
         
@@ -124,6 +122,30 @@ namespace FİLESAPI.Controllers
             return result;
         }
 
+        [HttpGet("Download/{id}")]
+        public IActionResult DownloadFile(int id)
+        {
+            var folder = _context.Folders.SingleOrDefault(f => f.Id == id);
+            if (folder == null)
+            {
+                return NotFound("Klasör bulunamadı");
+            }
+
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/upload", folder.FolderName);
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound("Dosya bulunamadı");
+            }
+
+            var memory = new MemoryStream();
+            using (var stream = new FileStream(filePath, FileMode.Open))
+            {
+                stream.CopyTo(memory);
+            }
+            memory.Position = 0;
+
+            return File(memory, "application/octet-stream", Path.GetFileName(filePath));
+        }
 
 
 

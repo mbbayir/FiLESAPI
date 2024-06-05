@@ -12,6 +12,5 @@ namespace FİLESAPI.Models
 
         public DbSet<Folder> Folders { get; set; }
         public DbSet<Fillies> Files { get; set; }
-        public DbSet<Category> Categories { get; set; }
     }
 }

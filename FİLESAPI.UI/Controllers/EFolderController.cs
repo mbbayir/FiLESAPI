@@ -2,7 +2,7 @@
 
 namespace FİLESAPI.UI.Controllers
 {
-    public class FilesController : Controller
+    public class EFolderController : Controller
     {
         public IActionResult Index()
         {

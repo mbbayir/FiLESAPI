@@ -6,8 +6,7 @@
         public int FolderId { get; set; }
         public string UserID { get; set; }
         public string FileName { get; set; }
-        public string FilePath { get; set; }
-        public int FileSize { get; set; }
+        public long FileSize { get; set; }
 
         public DateTime Updated { get; set; }
 

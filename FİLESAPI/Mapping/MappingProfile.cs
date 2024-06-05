@@ -19,7 +19,6 @@ namespace FİLESAPI.Mapping
                 .ReverseMap();
 
 
-            CreateMap<Category, CategoryDto>().ReverseMap();
 
         }
     }

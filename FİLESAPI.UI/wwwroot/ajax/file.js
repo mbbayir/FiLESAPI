@@ -1,5 +1,5 @@
 ﻿$(document).ready(function () {
-     listele();
+    listele();
 
     $("#folderForm").submit(function (e) {
         e.preventDefault();
@@ -15,7 +15,6 @@
 var selectedFolderId = null;
 var baseurl = "http://localhost:5287/";
 var gettoken = localStorage.getItem("token");
-
 function listele() {
     $.ajax({
         type: "GET",
@@ -46,7 +45,6 @@ function listele() {
         }
     });
 }
-
 function sil(id) {
     if (!confirm("Are you sure you want to delete this folder?")) {
         return;
@@ -68,13 +66,12 @@ function sil(id) {
         }
     });
 }
-
 function ekle() {
 
     var input = document.getElementById('folderName');
     var file = input.files[0];
 
-    var formData  = new FormData();
+    var formData = new FormData();
     formData.append('FolderName', file);
 
 
@@ -88,25 +85,22 @@ function ekle() {
             "Authorization": "Bearer " + gettoken
         },
         success: function (response) {
-            if(response == "hata"){
+            if (response == "hata") {
                 alert("hata!");
-                
+
             }
 
-            if(response != "hata"){
+            if (response != "hata") {
                 console.log(response);
-               
-                
+
+
             }
         },
         error: function (xhr, status, error) {
-           console.log(error);
+            console.log(error);
         }
     });
 }
-
-
-
 
 
 function duzenle(id, folderName) {
