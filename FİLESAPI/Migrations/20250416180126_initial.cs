@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FİLESAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class mig01 : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -57,13 +57,20 @@ namespace FİLESAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    ParentFolderId = table.Column<int>(type: "int", nullable: false),
                     FolderName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Updated = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Updated = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FolderId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Folders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Folders_Folders_FolderId",
+                        column: x => x.FolderId,
+                        principalTable: "Folders",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -251,6 +258,11 @@ namespace FİLESAPI.Migrations
                 name: "IX_Files_UserID",
                 table: "Files",
                 column: "UserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Folders_FolderId",
+                table: "Folders",
+                column: "FolderId");
         }
 
         /// <inheritdoc />

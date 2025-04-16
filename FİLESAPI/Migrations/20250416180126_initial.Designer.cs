@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FİLESAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240527133918_mig01")]
-    partial class mig01
+    [Migration("20250416180126_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -173,14 +173,22 @@ namespace FİLESAPI.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("FolderId")
+                        .HasColumnType("int");
+
                     b.Property<string>("FolderName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ParentFolderId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("Updated")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FolderId");
 
                     b.ToTable("Folders");
                 });
@@ -310,6 +318,13 @@ namespace FİLESAPI.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("FİLESAPI.Models.Folder", b =>
+                {
+                    b.HasOne("FİLESAPI.Models.Folder", null)
+                        .WithMany("SubFolders")
+                        .HasForeignKey("FolderId");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("FİLESAPI.Models.AppRole", null)
@@ -369,6 +384,8 @@ namespace FİLESAPI.Migrations
             modelBuilder.Entity("FİLESAPI.Models.Folder", b =>
                 {
                     b.Navigation("Files");
+
+                    b.Navigation("SubFolders");
                 });
 #pragma warning restore 612, 618
         }
